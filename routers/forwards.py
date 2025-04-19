@@ -46,7 +46,7 @@ async def forward_callback(callback: CallbackQuery, user: db_users.User, state: 
     message_id = callback.data.split("/")[1]
     return await prepare_forward(callback.message, user, message_id, state)
 
-@router.message(ForwardState.forward, F.text)
+@router.message(ForwardState.forward)
 async def send_forward(message: Message, user: db_users.User, state: FSMContext):
     data = await state.get_data()
     forward_to_user: db_users.User = data.get("forward_to_user")
@@ -61,7 +61,7 @@ async def send_forward(message: Message, user: db_users.User, state: FSMContext)
         "📨 Получено новое сообщение" if not forward_to_user.is_admin else f"📨 Получено новое сообщение \n\nимя: {message.from_user.full_name} айди: {message.from_user.id} юзернаме: @{message.from_user.username} номер {user.number}",
         disable_notification=True
     )
-    
+
     await message.copy_to(forward_to_user.id, reply_to_message_id=msg.message_id, reply_markup=InlineKeyboardMarkup(inline_keyboard=[[
         InlineKeyboardButton(text="🔁 Ответить", callback_data="forward/"+user.message_id)
     ]]))
